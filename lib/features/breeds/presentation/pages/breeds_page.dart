@@ -16,6 +16,7 @@ class BreedsPage extends StatefulWidget {
 class _BreedsPageState extends State<BreedsPage> {
   static const _scrollThreshold = 200.0;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -25,6 +26,7 @@ class _BreedsPageState extends State<BreedsPage> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
@@ -46,9 +48,24 @@ class _BreedsPageState extends State<BreedsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cat Breeds'),
+        title: const Text('Razas de Gatos'),
       ),
-      body: BlocBuilder<BreedsCubit, BreedsState>(
+      body: BlocConsumer<BreedsCubit, BreedsState>(
+        listenWhen: (previous, current) =>
+            previous.paginationErrorMessage != current.paginationErrorMessage &&
+            current.paginationErrorMessage != null,
+        listener: (context, state) {
+          final message = state.paginationErrorMessage;
+          if (message == null) {
+            return;
+          }
+
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(content: Text(message)),
+            );
+        },
         builder: (context, state) {
           final String query = state.searchQuery.toLowerCase();
           final bool isSearching = query.isNotEmpty;
@@ -73,7 +90,7 @@ class _BreedsPageState extends State<BreedsPage> {
           }
 
           if (state.breeds.isEmpty) {
-            return const Center(child: Text('No breeds found.'));
+            return const Center(child: Text('No se encontraron razas.'));
           }
 
           return Column(
@@ -81,11 +98,32 @@ class _BreedsPageState extends State<BreedsPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: TextField(
+                  controller: _searchController,
                   onChanged: context.read<BreedsCubit>().updateSearchQuery,
-                  decoration: const InputDecoration(
-                    hintText: 'Search by breed, country or origin',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    hintText: 'Buscar por raza, pais u origen',
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: isSearching
+                        ? IconButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<BreedsCubit>().updateSearchQuery('');
+                            },
+                            icon: const Icon(Icons.close),
+                            tooltip: 'Limpiar busqueda',
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${filteredBreeds.length} resultados',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
               ),
@@ -100,7 +138,7 @@ class _BreedsPageState extends State<BreedsPage> {
                             Padding(
                               padding: EdgeInsets.all(24),
                               child: Center(
-                                child: Text('No matches for your search.'),
+                                child: Text('No hay coincidencias para tu busqueda.'),
                               ),
                             ),
                           ],
@@ -173,7 +211,7 @@ class _ErrorStateView extends StatelessWidget {
             const SizedBox(height: 16),
             FilledButton(
               onPressed: onRetry,
-              child: const Text('Retry'),
+              child: const Text('Reintentar'),
             ),
           ],
         ),
@@ -217,7 +255,7 @@ class _PaginationFooter extends StatelessWidget {
             const SizedBox(height: 8),
             TextButton(
               onPressed: onRetry,
-              child: const Text('Try again'),
+              child: const Text('Reintentar'),
             ),
           ],
         ),

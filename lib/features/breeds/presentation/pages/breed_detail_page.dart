@@ -54,17 +54,17 @@ class _BreedDetailPageState extends State<BreedDetailPage> {
             ),
             const SizedBox(height: 16),
             _InfoCard(
-              title: 'General Information',
+              title: 'Informacion General',
               children: [
-                _InfoRow(label: 'Country', value: widget.breed.country),
-                _InfoRow(label: 'Origin', value: widget.breed.origin),
-                _InfoRow(label: 'Coat', value: widget.breed.coat),
-                _InfoRow(label: 'Pattern', value: widget.breed.pattern),
+                _InfoRow(label: 'Pais', value: widget.breed.country),
+                _InfoRow(label: 'Origen', value: widget.breed.origin),
+                _InfoRow(label: 'Pelaje', value: widget.breed.coat),
+                _InfoRow(label: 'Patron', value: widget.breed.pattern),
               ],
             ),
             const SizedBox(height: 16),
             _InfoCard(
-              title: 'Curious Fact',
+              title: 'Dato Curioso',
               children: [
                 FutureBuilder<CatFact>(
                   future: _factFuture,
@@ -90,7 +90,7 @@ class _BreedDetailPageState extends State<BreedDetailPage> {
                           const SizedBox(height: 8),
                           TextButton(
                             onPressed: _retryFactRequest,
-                            child: const Text('Try again'),
+                            child: const Text('Reintentar'),
                           ),
                         ],
                       );
@@ -98,7 +98,7 @@ class _BreedDetailPageState extends State<BreedDetailPage> {
 
                     final fact = snapshot.data;
                     if (fact == null || fact.fact.isEmpty) {
-                      return const Text('No fact available right now.');
+                      return const Text('No hay un dato curioso disponible ahora.');
                     }
 
                     return Column(
@@ -107,13 +107,13 @@ class _BreedDetailPageState extends State<BreedDetailPage> {
                         Text(fact.fact),
                         const SizedBox(height: 8),
                         Text(
-                          'Length: ${fact.length}',
+                          'Longitud: ${fact.length}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: 8),
                         TextButton(
                           onPressed: _retryFactRequest,
-                          child: const Text('Load another fact'),
+                          child: const Text('Cargar otro dato'),
                         ),
                       ],
                     );
