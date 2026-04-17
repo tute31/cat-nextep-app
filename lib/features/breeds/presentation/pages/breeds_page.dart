@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/breeds_cubit.dart';
 import '../cubit/breeds_state.dart';
+import 'breed_detail_page.dart';
 import '../widgets/breed_list_item.dart';
 
 class BreedsPage extends StatefulWidget {
@@ -123,7 +124,17 @@ class _BreedsPageState extends State<BreedsPage> {
                               );
                             }
 
-                            return BreedListItem(breed: filteredBreeds[index]);
+                            final breed = filteredBreeds[index];
+                            return BreedListItem(
+                              breed: breed,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => BreedDetailPage(breed: breed),
+                                  ),
+                                );
+                              },
+                            );
                           },
                         ),
                 ),
