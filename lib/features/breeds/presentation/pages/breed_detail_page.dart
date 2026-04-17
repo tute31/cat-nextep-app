@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/breed.dart';
+import '../../../facts/domain/entities/cat_fact.dart';
+import '../../../facts/domain/repositories/cat_facts_repository.dart';
 
-class BreedDetailPage extends StatelessWidget {
+class BreedDetailPage extends StatefulWidget {
   const BreedDetailPage({
     super.key,
     required this.breed,
@@ -11,10 +14,33 @@ class BreedDetailPage extends StatelessWidget {
   final Breed breed;
 
   @override
+  State<BreedDetailPage> createState() => _BreedDetailPageState();
+}
+
+class _BreedDetailPageState extends State<BreedDetailPage> {
+  late Future<CatFact> _factFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _factFuture = _fetchRandomFact();
+  }
+
+  Future<CatFact> _fetchRandomFact() {
+    return context.read<CatFactsRepository>().getRandomFact();
+  }
+
+  void _retryFactRequest() {
+    setState(() {
+      _factFuture = _fetchRandomFact();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(breed.breed),
+        title: Text(widget.breed.breed),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -22,24 +48,70 @@ class BreedDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              breed.breed,
+              widget.breed.breed,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 16),
             _InfoCard(
               title: 'General Information',
               children: [
-                _InfoRow(label: 'Country', value: breed.country),
-                _InfoRow(label: 'Origin', value: breed.origin),
-                _InfoRow(label: 'Coat', value: breed.coat),
-                _InfoRow(label: 'Pattern', value: breed.pattern),
+                _InfoRow(label: 'Country', value: widget.breed.country),
+                _InfoRow(label: 'Origin', value: widget.breed.origin),
+                _InfoRow(label: 'Coat', value: widget.breed.coat),
+                _InfoRow(label: 'Pattern', value: widget.breed.pattern),
               ],
             ),
             const SizedBox(height: 16),
             _InfoCard(
               title: 'Curious Fact',
-              children: const [
-                Text('A random cat fact for this section will be integrated next.'),
+              children: [
+                FutureBuilder<CatFact>(
+                  future: _factFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Could not load cat fact.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _retryFactRequest,
+                            child: const Text('Try again'),
+                          ),
+                        ],
+                      );
+                    }
+
+                    final fact = snapshot.data;
+                    if (fact == null || fact.fact.isEmpty) {
+                      return const Text('No fact available right now.');
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(fact.fact),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Length: ${fact.length}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: _retryFactRequest,
+                          child: const Text('Load another fact'),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
           ],
