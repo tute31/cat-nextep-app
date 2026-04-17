@@ -8,6 +8,7 @@ class BreedsState extends Equatable {
   const BreedsState({
     this.status = BreedsStatus.initial,
     this.breeds = const <Breed>[],
+    this.searchQuery = '',
     this.page = 0,
     this.hasReachedEnd = false,
     this.isFetchingMore = false,
@@ -17,6 +18,7 @@ class BreedsState extends Equatable {
 
   final BreedsStatus status;
   final List<Breed> breeds;
+  final String searchQuery;
   final int page;
   final bool hasReachedEnd;
   final bool isFetchingMore;
@@ -26,6 +28,7 @@ class BreedsState extends Equatable {
   BreedsState copyWith({
     BreedsStatus? status,
     List<Breed>? breeds,
+    String? searchQuery,
     int? page,
     bool? hasReachedEnd,
     bool? isFetchingMore,
@@ -37,6 +40,7 @@ class BreedsState extends Equatable {
     return BreedsState(
       status: status ?? this.status,
       breeds: breeds ?? this.breeds,
+      searchQuery: searchQuery ?? this.searchQuery,
       page: page ?? this.page,
       hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
       isFetchingMore: isFetchingMore ?? this.isFetchingMore,
@@ -52,6 +56,7 @@ class BreedsState extends Equatable {
   List<Object?> get props => <Object?>[
         status,
         breeds,
+      searchQuery,
         page,
         hasReachedEnd,
         isFetchingMore,

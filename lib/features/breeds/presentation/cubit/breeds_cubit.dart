@@ -100,4 +100,12 @@ class BreedsCubit extends Cubit<BreedsState> {
       await fetchNextPage();
     }
   }
+
+  void updateSearchQuery(String value) {
+    emit(
+      state.copyWith(
+        searchQuery: value.trim(),
+      ),
+    );
+  }
 }

@@ -49,6 +49,17 @@ class _BreedsPageState extends State<BreedsPage> {
       ),
       body: BlocBuilder<BreedsCubit, BreedsState>(
         builder: (context, state) {
+          final String query = state.searchQuery.toLowerCase();
+          final bool isSearching = query.isNotEmpty;
+          final filteredBreeds = state.breeds.where((breed) {
+            final name = breed.breed.toLowerCase();
+            final country = breed.country.toLowerCase();
+            final origin = breed.origin.toLowerCase();
+            return name.contains(query) ||
+                country.contains(query) ||
+                origin.contains(query);
+          }).toList();
+
           if (state.status == BreedsStatus.loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -64,22 +75,48 @@ class _BreedsPageState extends State<BreedsPage> {
             return const Center(child: Text('No breeds found.'));
           }
 
-          return ListView.separated(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: state.breeds.length + 1,
-            separatorBuilder: (_, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              if (index == state.breeds.length) {
-                return _PaginationFooter(
-                  isFetchingMore: state.isFetchingMore,
-                  paginationErrorMessage: state.paginationErrorMessage,
-                  onRetry: () => context.read<BreedsCubit>().retry(),
-                );
-              }
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: TextField(
+                  onChanged: context.read<BreedsCubit>().updateSearchQuery,
+                  decoration: const InputDecoration(
+                    hintText: 'Search by breed, country or origin',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: filteredBreeds.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Text('No matches for your search.'),
+                        ),
+                      )
+                    : ListView.separated(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: filteredBreeds.length + (isSearching ? 0 : 1),
+                        separatorBuilder: (_, index) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          if (!isSearching && index == filteredBreeds.length) {
+                            return _PaginationFooter(
+                              isFetchingMore: state.isFetchingMore,
+                              paginationErrorMessage:
+                                  state.paginationErrorMessage,
+                              onRetry: () => context.read<BreedsCubit>().retry(),
+                            );
+                          }
 
-              return BreedListItem(breed: state.breeds[index]);
-            },
+                          return BreedListItem(breed: filteredBreeds[index]);
+                        },
+                      ),
+              ),
+            ],
           );
         },
       ),
