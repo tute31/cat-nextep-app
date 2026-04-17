@@ -1,0 +1,41 @@
+# Misc
+*.log
+*.swp
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+
+# VS Code (opcional)
+.vscode/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+/build/
+
+# Coverage
+coverage/
+
+# Flutter plugins
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Android
+android/.gradle/
+android/local.properties
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# Generated docs
+doc/api/
