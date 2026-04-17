@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/error/error_mapper.dart';
 import '../../domain/entities/breed.dart';
 import '../../domain/repositories/breeds_repository.dart';
 import 'breeds_state.dart';
@@ -44,7 +45,10 @@ class BreedsCubit extends Cubit<BreedsState> {
       emit(
         BreedsState(
           status: BreedsStatus.failure,
-          errorMessage: error.toString(),
+          errorMessage: mapErrorToMessage(
+            error,
+            fallbackMessage: 'No se pudieron cargar las razas.',
+          ),
         ),
       );
     }
@@ -84,7 +88,10 @@ class BreedsCubit extends Cubit<BreedsState> {
       emit(
         state.copyWith(
           isFetchingMore: false,
-          paginationErrorMessage: error.toString(),
+          paginationErrorMessage: mapErrorToMessage(
+            error,
+            fallbackMessage: 'No se pudieron cargar mas razas.',
+          ),
         ),
       );
     }
@@ -125,7 +132,10 @@ class BreedsCubit extends Cubit<BreedsState> {
           BreedsState(
             status: BreedsStatus.failure,
             searchQuery: state.searchQuery,
-            errorMessage: error.toString(),
+            errorMessage: mapErrorToMessage(
+              error,
+              fallbackMessage: 'No se pudieron actualizar las razas.',
+            ),
           ),
         );
         return;
@@ -133,7 +143,10 @@ class BreedsCubit extends Cubit<BreedsState> {
 
       emit(
         state.copyWith(
-          paginationErrorMessage: error.toString(),
+          paginationErrorMessage: mapErrorToMessage(
+            error,
+            fallbackMessage: 'No se pudieron actualizar las razas.',
+          ),
         ),
       );
     }

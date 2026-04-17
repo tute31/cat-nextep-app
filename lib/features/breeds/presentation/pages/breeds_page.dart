@@ -67,7 +67,7 @@ class _BreedsPageState extends State<BreedsPage> {
 
           if (state.status == BreedsStatus.failure) {
             return _ErrorStateView(
-              message: state.errorMessage ?? 'Could not load breeds.',
+              message: state.errorMessage ?? 'No se pudieron cargar las razas.',
               onRetry: () => context.read<BreedsCubit>().retry(),
             );
           }
@@ -208,7 +208,7 @@ class _PaginationFooter extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Could not load more breeds.',
+              'No se pudieron cargar mas razas.',
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium

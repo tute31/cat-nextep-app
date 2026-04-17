@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/error/error_mapper.dart';
 import '../../domain/entities/breed.dart';
 import '../../../facts/domain/entities/cat_fact.dart';
 import '../../../facts/domain/repositories/cat_facts_repository.dart';
@@ -73,11 +74,17 @@ class _BreedDetailPageState extends State<BreedDetailPage> {
                     }
 
                     if (snapshot.hasError) {
+                      final message = mapErrorToMessage(
+                        snapshot.error!,
+                        fallbackMessage:
+                            'No se pudo cargar el dato curioso de gatos.',
+                      );
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Could not load cat fact.',
+                            message,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 8),
