@@ -89,32 +89,44 @@ class _BreedsPageState extends State<BreedsPage> {
                 ),
               ),
               Expanded(
-                child: filteredBreeds.isEmpty
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: Text('No matches for your search.'),
-                        ),
-                      )
-                    : ListView.separated(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredBreeds.length + (isSearching ? 0 : 1),
-                        separatorBuilder: (_, index) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          if (!isSearching && index == filteredBreeds.length) {
-                            return _PaginationFooter(
-                              isFetchingMore: state.isFetchingMore,
-                              paginationErrorMessage:
-                                  state.paginationErrorMessage,
-                              onRetry: () => context.read<BreedsCubit>().retry(),
-                            );
-                          }
+                child: RefreshIndicator(
+                  onRefresh: () => context.read<BreedsCubit>().refreshBreeds(),
+                  child: filteredBreeds.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            SizedBox(height: 140),
+                            Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Center(
+                                child: Text('No matches for your search.'),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16),
+                          itemCount:
+                              filteredBreeds.length + (isSearching ? 0 : 1),
+                          separatorBuilder: (_, index) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            if (!isSearching && index == filteredBreeds.length) {
+                              return _PaginationFooter(
+                                isFetchingMore: state.isFetchingMore,
+                                paginationErrorMessage:
+                                    state.paginationErrorMessage,
+                                onRetry: () =>
+                                    context.read<BreedsCubit>().retry(),
+                              );
+                            }
 
-                          return BreedListItem(breed: filteredBreeds[index]);
-                        },
-                      ),
+                            return BreedListItem(breed: filteredBreeds[index]);
+                          },
+                        ),
+                ),
               ),
             ],
           );

@@ -101,6 +101,44 @@ class BreedsCubit extends Cubit<BreedsState> {
     }
   }
 
+  Future<void> refreshBreeds() async {
+    try {
+      final List<Breed> breeds = await _breedsRepository.getBreeds(
+        page: 1,
+        limit: _pageSize,
+      );
+
+      emit(
+        state.copyWith(
+          status: BreedsStatus.success,
+          breeds: breeds,
+          page: 1,
+          hasReachedEnd: breeds.length < _pageSize,
+          isFetchingMore: false,
+          clearErrorMessage: true,
+          clearPaginationErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      if (state.breeds.isEmpty) {
+        emit(
+          BreedsState(
+            status: BreedsStatus.failure,
+            searchQuery: state.searchQuery,
+            errorMessage: error.toString(),
+          ),
+        );
+        return;
+      }
+
+      emit(
+        state.copyWith(
+          paginationErrorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
   void updateSearchQuery(String value) {
     emit(
       state.copyWith(
